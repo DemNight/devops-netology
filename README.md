@@ -16,3 +16,5 @@ _override.tf.json
 
 с именем .terraformrc (скрытый файл?)
 и файл с именем terraform.rc
+
+"новая строка"
