@@ -76,12 +76,12 @@ touch ИМЯ_ФАЙЛА{1..100000}
 
 mkdir /tmp/new_path_directory/
 cp /bin/bash /tmp/new_path_directory/
-PATH=$PATH:/tmp/new_path_directory/
+PATH=/tmp/new_path_directory/:$PATH
 type -a bash
 
+bash is /tmp/new_path_directory/bash
 bash is /usr/bin/bash
 bash is /bin/bash
-bash is /tmp/new_path_directory/bash
 
 (добавил скриншот)
 
