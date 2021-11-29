@@ -43,6 +43,18 @@ WantedBy=multi-user.target
 Переменная окружения
 vagrant@vagrant:/etc/default$ sudo cat /proc/12914/environ 
 LANG=en_US.UTF-8LANGUAGE=en_US:PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/snap/binHOME=/home/vagrantLOGNAME=vagrantUSER=vagrantSHELL=/bin/bashINVOCATION_ID=2076e5eb3c64480985a09438e92520ebJOURNAL_STREAM=9:41650vagrant@vagrant:/etc/default$ 
+
+(исправления\дополнения)
+
+(при помощи чата и гугла)
+
+указываю в отдельном файле требуемые переменные. добавляю файлик в автозапуск (тогда система грузит доп параметры из файла)
+
+[Service]
+EnvironmentFile=-/etc/default/cron
+ExecStart=/usr/sbin/cron -f $EXTRA_OPTS
+
+
 ```
 
 2) Ознакомьтесь с опциями node_exporter и выводом /metrics по-умолчанию. Приведите несколько опций, которые вы бы выбрали для базового мониторинга хоста по CPU, памяти, диску и сети.
@@ -113,27 +125,32 @@ vagrant@vagrant:~$ sysctl -n fs.nr_open
 
 6) Запустите любой долгоживущий процесс (не ls, который отработает мгновенно, а, например, sleep 1h) в отдельном неймспейсе процессов; покажите, что ваш процесс работает под PID 1 через nsenter. Для простоты работайте в данном задании под root (sudo -i). Под обычным пользователем требуются дополнительные опции (--map-root-user) и т.д.
 ```
-vagrant@vagrant:~$ sudo su
-root@vagrant:/home/vagrant# ps -e |grep sleep
-   1642 pts/0    00:00:00 sleep
-   1643 pts/0    00:00:00 sleep
-root@vagrant:/home/vagrant# nsenter --target 1643 --pid --mount
-root@vagrant:/# ps
-    PID TTY          TIME CMD
-   1703 pts/1    00:00:00 sudo
-   1705 pts/1    00:00:00 su
-   1706 pts/1    00:00:00 bash
-   1956 pts/1    00:00:00 nsenter
-   1957 pts/1    00:00:00 bash
-   1966 pts/1    00:00:00 ps
-root@vagrant:/# exit
-logout
-root@vagrant:/home/vagrant# exit
-exit
-vagrant@vagrant:~$
+(исправлено)
+
+терминал 1
+vagrant@vagrant:~$ sudo -i unshare -f --pid --mount-proc sleep 1h
+
+Терминал 2
+vagrant@vagrant:~$ ps -e |grep sleep
+2267 pts/0    00:00:00 sleep
+root@vagrant:/# nsenter --target 2267 --mount --pid ps aux
+USER         PID %CPU %MEM    VSZ   RSS TTY      STAT START   TIME COMMAND
+root           1  0.0  0.0   8076   592 pts/0    S+   09:51   0:00 sleep 1h
+root           3  0.0  0.3  11492  3384 pts/1    R+   09:53   0:00 ps aux
 ```
 7) Найдите информацию о том, что такое :(){ :|:& };:. Запустите эту команду в своей виртуальной машине Vagrant с Ubuntu 20.04 (это важно, поведение в других ОС не проверялось). Некоторое время все будет "плохо", после чего (минуты) – ОС должна стабилизироваться. Вызов dmesg расскажет, какой механизм помог автоматической стабилизации. Как настроен этот механизм по-умолчанию, и как изменить число процессов, которое можно создать в сессии?
 
 ```
 "В действительности эта команда является логической бомбой. Она оперирует определением функции с именем ‘:‘, которая вызывает сама себя дважды: один раз на переднем плане и один раз в фоне. Она продолжает своё выполнение снова и снова, пока система не зависнет." (c)
+
+(исправления\дополнения)
+
+Существует ограничение на количество процессов одного пользователя, судя по всему, при привышении лимита контроллер заблокировал выполнение команды (не дал создать больше процессов)
+
+dmesg выводит:
+[ 1292.599507] cgroup: fork rejected by pids controller in /user.slice/user-1000.slice/session-3.scope
+[ 1308.267364] cgroup: fork rejected by pids controller in /user.slice/user-1000.slice/session-5.scope
+
+исходя из этого, можно установить(снизить) лимит для пользователя командой ulimit -u (либо, добавлением в файл конфигурации, для работы на постоянной основе)
+
 ```
