@@ -888,6 +888,7 @@ HOST: stackoverflow.com
 В ответе укажите полученный HTTP код, что он означает?
 
 ```
+(исправлено)
 vagrant@vagrant:~$ telnet stackoverflow.com 80
 Trying 151.101.1.69...
 Connected to stackoverflow.com.
