@@ -893,30 +893,30 @@ Trying 151.101.1.69...
 Connected to stackoverflow.com.
 Escape character is '^]'.
 GET /questions HTTP/1.0
+HOST: stackoverflow.com
 
-HTTP/1.1 500 Domain Not Found
-Server: Varnish
-Retry-After: 0
-content-type: text/html
-Cache-Control: private, no-cache
-X-Served-By: cache-fra19121-FRA
-Content-Length: 221
+HTTP/1.1 301 Moved Permanently
+cache-control: no-cache, no-store, must-revalidate
+location: https://stackoverflow.com/questions
+x-request-guid: 759f313c-c3ed-4e7e-805e-24699eb9485e
+feature-policy: microphone 'none'; speaker 'none'
+content-security-policy: upgrade-insecure-requests; frame-ancestors 'self' https://stackexchange.com
 Accept-Ranges: bytes
-Date: Thu, 02 Dec 2021 10:24:30 GMT
+Date: Fri, 03 Dec 2021 16:54:11 GMT
 Via: 1.1 varnish
 Connection: close
+X-Served-By: cache-fra19182-FRA
+X-Cache: MISS
+X-Cache-Hits: 0
+X-Timer: S1638550452.906272,VS0,VE92
+Vary: Fastly-SSL
+X-DNS-Prefetch-Control: off
+Set-Cookie: prov=8ef4aea3-5335-599f-11fc-224a603ec320; domain=.stackoverflow.com; expires=Fri, 01-Jan-2055 00:00:00 GMT; path=/; HttpOnly
+
+Connection closed by foreign host.
 
 
-<html>
-<head>
-<title>Fastly error: unknown domain </title>
-</head>
-<body>
-<p>Fastly error: unknown domain: . Please check that this domain has been added to a service.</p>
-<p>Details: cache-fra19121-FRA</p></body></html>Connection closed by foreign host.
-
-
-Ошибка 500, домен не найден. Ошибка со стороны сервера.
+Ошибка 301, перенаправление. Говорит о том, что адрес утратил актуальность (был, на постоянной, основе перемещён). 
 ```
 
 2) Повторите задание 1 в браузере, используя консоль разработчика F12.
