@@ -1171,3 +1171,98 @@ Windows: arp -d *
 Linux: ip neigh delete <IP> dev <INTERFACE>, arp -d <IP>
 Windows: arp -d <IP>
 ```
+
+ 
+ # 3.8. Компьютерные сети, лекция 3
+
+1) Подключитесь к публичному маршрутизатору в интернет. Найдите маршрут к вашему публичному IP
+telnet route-views.routeviews.org
+Username: rviews
+show ip route x.x.x.x/32
+show bgp x.x.x.x/32
+
+```
+route-views>show ip route 79.165.75.79
+Routing entry for 79.165.0.0/16
+  Known via "bgp 6447", distance 20, metric 0
+  Tag 6939, type external
+  Last update from 64.71.137.241 03:58:07 ago
+  Routing Descriptor Blocks:
+  * 64.71.137.241, from 64.71.137.241, 03:58:07 ago
+      Route metric is 0, traffic share count is 1
+      AS Hops 3
+      Route tag 6939
+      MPLS label: none
+```
+
+2) Создайте dummy0 интерфейс в Ubuntu. Добавьте несколько статических маршрутов. Проверьте таблицу маршрутизации.
+
+```
+Создание dummy
+echo "dummy" > /etc/modules-load.d/dummy.conf
+echo "options dummy numdummies=2" > /etc/modprobe.d/dummy.conf
+
+Задаю параметры
+mcedit /etc/systemd/network/10-dummy0.netdev
+[NetDev]
+Name=dummy0
+Kind=dummy
+
+mcedit /etc/systemd/network/20-dummy0.network
+[Match]
+Name=dummy0
+
+[Network]
+Address=10.0.8.1/24
+
+Создание статического маршрута (указываю адрес "цели" и через какой адрес её достич)
+
+ip route add 243.143.5.25 via 10.0.2.2
+
+(для создания постоянного маршрута, правим /etc/network/interfaces добавляем что-то типа: up ip ro add адерес_цели via через_какой_ардес)
+
+root@vagrant:~# ip r
+default via 10.0.2.2 dev eth0 proto dhcp src 10.0.2.15 metric 100
+10.0.2.0/24 dev eth0 proto kernel scope link src 10.0.2.15
+10.0.2.2 dev eth0 proto dhcp scope link src 10.0.2.15 metric 100
+10.0.8.0/24 dev dummy0 proto kernel scope link src 10.0.8.1
+243.143.5.25 via 10.0.2.2 dev eth0
+```
+
+3) Проверьте открытые TCP порты в Ubuntu, какие протоколы и приложения используют эти порты? Приведите несколько примеров.
+
+```vagrant@vagrant:~$ ss -tln
+State         Recv-Q        Send-Q               Local Address:Port               Peer Address:Port       Process
+LISTEN        0             4096                 127.0.0.53%lo:53                      0.0.0.0:*
+LISTEN        0             128                        0.0.0.0:22                      0.0.0.0:*
+LISTEN        0             4096                       0.0.0.0:111                     0.0.0.0:*
+LISTEN        0             128                           [::]:22                         [::]:*
+LISTEN        0             4096                          [::]:111                        [::]:*
+
+22 - SSH
+53 - DNS
+111 - SUNRPC (удалённый вызов процедур)
+```
+
+4) Проверьте используемые UDP сокеты в Ubuntu, какие протоколы и приложения используют эти порты?
+
+```
+
+vagrant@vagrant:~$ ss -una
+State        Recv-Q        Send-Q                Local Address:Port               Peer Address:Port       Process
+UNCONN       0             0                     127.0.0.53%lo:53                      0.0.0.0:*
+UNCONN       0             0                    10.0.2.15%eth0:68                      0.0.0.0:*
+UNCONN       0             0                           0.0.0.0:111                     0.0.0.0:*
+UNCONN       0             0                              [::]:111                        [::]:*
+
+22 - SSH
+53 - dhcp (отправка сообщений)
+111 - SUNRPC (удалённый вызов процедур)
+
+```
+
+5) Используя diagrams.net, создайте L3 диаграмму вашей домашней сети или любой другой сети, с которой вы работали.
+
+```
+(скриншот прикреплён к домашнему заданию)
+```
